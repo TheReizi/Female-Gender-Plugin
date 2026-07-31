@@ -1,0 +1,13 @@
+# Gradle
+.gradle/
+build/
+
+# Kotlin
+.kotlin/
+
+# JVM crash logs (can appear in the project root after a daemon crash)
+hs_err_pid*.log
+replay_pid*.log
+
+# OS
+.DS_Store

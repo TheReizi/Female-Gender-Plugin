@@ -1,8 +1,0 @@
-name: FemaleGenderPlugin
-version: '1.0.0'
-main: ru.mth.femalegender.Main
-api-version: '1.21'
-prefix: FemaleGenderPlugin
-authors: [ MTH Studio ]
-description: The Female Gender Plugin enables flawless server-wide customization syncing even on offline servers, making your unique look visible to all players.
-plhide-display-name: '<gradient:#925AFB:#FF84D9>FemaleGenderPlugin</gradient>'
