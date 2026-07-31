@@ -1,0 +1,5 @@
+mod:
+  # The packet format used for mod data reads/writes
+  # -1 will use the newest known protocol, so that you won't need to change this every mod and plugin update.
+  # Undocumented protocols will cause this plugin to disable itself on launch.
+  protocol: -1
