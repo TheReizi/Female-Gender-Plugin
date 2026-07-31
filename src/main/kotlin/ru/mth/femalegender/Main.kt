@@ -1,6 +1,7 @@
 package ru.mth.femalegender
 
 import org.bukkit.plugin.java.JavaPlugin
+import ru.mth.femalegender.core.config.ConfigWatcher
 import ru.mth.femalegender.core.utils.Logger
 import ru.mth.femalegender.listeners.ConnectionListener
 import ru.mth.femalegender.listeners.HelloListener
@@ -12,17 +13,22 @@ import ru.mth.femalegender.wildfire.UserManager
 class Main : JavaPlugin() {
 
     companion object {
-        /** Для FemaleGenderAPI — доступ к networkManager, чтобы triggerить немедленный ресинк. */
         lateinit var instance: Main
             private set
     }
 
     val userManager = UserManager()
     val networkManager = NetworkManager(this)
+    val configWatcher = ConfigWatcher(this)
 
     override fun onEnable() {
         instance = this
-        saveDefaultConfig()
+
+        configWatcher.registerDefaultConfig("config.yml")
+        configWatcher.addReloadListener { fileName ->
+            if (fileName == "config.yml") networkManager.reloadProtocol()
+        }
+        configWatcher.startWatcher()
 
         if (!networkManager.init()) {
             Logger.error("INVALID PROTOCOL, DISABLING SELF.")
@@ -34,6 +40,7 @@ class Main : JavaPlugin() {
     }
 
     override fun onDisable() {
+        configWatcher.shutdown()
         server.messenger.unregisterIncomingPluginChannel(this)
         server.messenger.unregisterOutgoingPluginChannel(this)
     }

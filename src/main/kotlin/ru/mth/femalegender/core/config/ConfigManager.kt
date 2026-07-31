@@ -25,8 +25,8 @@ class ConfigManager(plugin: Plugin) {
 
         watcher.addReloadListener { fileName ->
             when (fileName) {
-                "config.yml"   -> { /* значения читаются live через mainConfig */ }
-                "messages.yml" -> { /* значения читаются live через messagesConfig */ }
+                "config.yml"   -> { }
+                "messages.yml" -> { }
             }
         }
         watcher.startWatcher()

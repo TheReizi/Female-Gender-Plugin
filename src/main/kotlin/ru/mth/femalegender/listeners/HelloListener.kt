@@ -9,10 +9,6 @@ import ru.mth.femalegender.networking.minecraft.CraftOutputStream
 import ru.mth.femalegender.wildfire.ModConstants
 import java.io.ByteArrayOutputStream
 
-/**
- * Отвечает на hello-хендшейк мода 5.0.0+ (только лог версии на клиенте,
- * на саму синхронизацию гендера не влияет).
- */
 class HelloListener(private val plugin: Main) : PluginMessageListener {
 
     override fun onPluginMessageReceived(channel: String, player: Player, message: ByteArray) {

@@ -8,19 +8,10 @@ import ru.mth.femalegender.wildfire.setup.uv.UVLayout
 import ru.mth.femalegender.wildfire.setup.uv.UVLayouts
 import ru.mth.femalegender.wildfire.setup.uv.UVQuad
 
-/**
- * Формат v5 (Fabric/NeoForge Female-Gender-Mod 5.0.0+) переписан на кодеки
- * Minecraft, но порядок и типы общих полей совпадают с V4 — меняется только
- * то, что armorPhysics больше не существует, а в конце добавилась секция
- * UV-layout (кастомная раскладка текстуры груди). Поэтому общая часть
- * переиспользуется через делегирование к AbstractModSyncPacket, а UV-секция
- * дочитывается/дописывается поверх неё.
- */
 object ModSyncPacketV5 : ModSyncPacket {
     override val version = 5
     override val modRange = "5.0.0 - ?.?.?"
 
-    // version/modRange здесь не используются — регистр форматов обращается к ним через ModSyncPacketV5 напрямую.
     private val common = object : AbstractModSyncPacket(hasArmorPhysics = false, hasVoicePitch = true) {
         override val version = 5
         override val modRange = ""

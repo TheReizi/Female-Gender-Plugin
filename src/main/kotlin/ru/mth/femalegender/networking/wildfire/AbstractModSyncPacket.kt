@@ -9,12 +9,6 @@ import ru.mth.femalegender.wildfire.setup.GeneralOptions
 import ru.mth.femalegender.wildfire.setup.ModConfiguration
 import ru.mth.femalegender.wildfire.setup.PhysicsOptions
 
-/**
- * V2 добавил armorPhysics, V4 заменил его на voicePitch — оба поля никогда
- * не сосуществуют, поэтому порядок чтения/записи общий для всех версий.
- * V5 (см. ModSyncPacketV5) переиспользует этот же порядок и лишь дописывает
- * секцию UV-layout поверх него.
- */
 abstract class AbstractModSyncPacket(
     private val hasArmorPhysics: Boolean,
     private val hasVoicePitch: Boolean

@@ -7,10 +7,10 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Публичный API для сторонних плагинов. Позволяет подменять то, каким видит
- * игрока (target) конкретный зритель (viewer), не трогая собственные данные
- * target'а — они по-прежнему приходят с его клиента и хранятся как есть.
- * Override просто перекрывает их при рассылке конкретному viewer'у.
+ * Public API for third-party plugins. Lets you change how a player (target)
+ * is seen by a specific viewer, without touching the target's own data — it
+ * still arrives from their client and is stored as-is. An override merely
+ * shadows it when broadcasting to that particular viewer.
  */
 object FemaleGenderAPI {
     private val overrides = ConcurrentHashMap<UUID, MutableMap<UUID, ModConfiguration>>()
@@ -29,36 +29,36 @@ object FemaleGenderAPI {
 
     fun getOverride(target: UUID, viewer: UUID): ModConfiguration? = overrides[target]?.get(viewer)
 
-    // ── Принудительный гендер (для ВСЕХ зрителей разом) ──────────────────────
+    // ── Forced gender (applies to ALL viewers at once) ───────────────────────
 
     /**
-     * @param identity гендер, авторитетно закреплённый внешним источником (напр. RP-анкетой)
-     * @param fallback конфигурация целиком — используется, только если у target'а вообще
-     *   нет собственных данных мода (никогда не присылал их — мод не установлен/не запущен).
-     *   Если данные есть — подменяется только [ModConfiguration.generalOptions]`.genderIdentity`,
-     *   остальное (размер груди, физика и т.п.) остаётся собственным игрока.
+     * @param identity gender authoritatively assigned by an external source (e.g. an RP application)
+     * @param fallback the full configuration — used only if the target has no mod data of their
+     *   own at all (never sent any — mod not installed/not running). If they do have data, only
+     *   [ModConfiguration.generalOptions]`.genderIdentity` is overridden; everything else
+     *   (bust size, physics, etc.) remains the player's own.
      */
     data class ForcedGender(val identity: GenderIdentities, val fallback: ModConfiguration)
 
     private val forcedGenders = ConcurrentHashMap<UUID, ForcedGender>()
 
-    /** Закрепляет гендер за [target] для всех зрителей и немедленно пере-рассылает. См. [ForcedGender]. */
+    /** Locks [target]'s gender for all viewers and immediately re-broadcasts. See [ForcedGender]. */
     fun setForcedGender(target: UUID, identity: GenderIdentities, fallback: ModConfiguration) {
         forcedGenders[target] = ForcedGender(identity, fallback)
         resync()
     }
 
-    /** Снимает принудительный гендер с [target] (напр. анкета сброшена/гендер ещё не выбран). */
+    /** Removes the forced gender from [target] (e.g. application reset/gender not chosen yet). */
     fun clearForcedGender(target: UUID) {
         if (forcedGenders.remove(target) != null) resync()
     }
 
     fun getForcedGender(target: UUID): ForcedGender? = forcedGenders[target]
 
-    /** UUID всех игроков с принудительным гендером — читается [ru.mth.femalegender.networking.NetworkManager.sync]. */
+    /** UUIDs of all players with a forced gender — read by [ru.mth.femalegender.networking.NetworkManager.sync]. */
     fun forcedTargets(): Set<UUID> = forcedGenders.keys
 
-    /** Best-effort: если плагин ещё/уже не enabled (race при старте/остановке) — просто не ресинкаем. */
+    /** Best-effort: if the plugin isn't enabled yet/anymore (race during startup/shutdown), just skip the resync. */
     private fun resync() {
         runCatching {
             val plugin = Main.instance
