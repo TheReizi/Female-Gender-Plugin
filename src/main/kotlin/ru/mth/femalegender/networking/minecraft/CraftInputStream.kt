@@ -38,11 +38,15 @@ class CraftInputStream(input: InputStream) : DataInputStream(input) {
 
     fun readUUID(): UUID = UUID(readLong(), readLong())
 
-    inline fun <reified T : Enum<T>> readEnum(): T = enumValues<T>()[readVarInt()]
+    inline fun <reified T : Enum<T>> readEnum(): T {
+        val ordinal = readVarInt()
+        return enumValues<T>().getOrNull(ordinal)
+            ?: throw IOException("Unknown ${T::class.simpleName} ordinal: $ordinal")
+    }
 
     fun <K, V> readMap(maxSize: Int, keyReader: () -> K, valueReader: () -> V): Map<K, V> {
         val size = readVarInt()
-        if (size > maxSize) throw IOException("Map is too large ($size > $maxSize)")
+        if (size < 0 || size > maxSize) throw IOException("Invalid map size ($size, maximum $maxSize)")
         val map = LinkedHashMap<K, V>(size)
         repeat(size) { map[keyReader()] = valueReader() }
         return map

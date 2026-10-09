@@ -24,6 +24,11 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.21")
     compileOnly(files("libs/packetevents.jar"))
     compileOnly("me.clip:placeholderapi:2.11.6")
+    testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 val targetJavaVersion = 21
