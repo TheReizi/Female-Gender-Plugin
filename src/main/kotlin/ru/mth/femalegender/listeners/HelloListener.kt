@@ -15,12 +15,18 @@ class HelloListener(private val plugin: Main) : PluginMessageListener {
         if (channel != ModConstants.HELLO_SERVERBOUND) return
 
         val version = CraftInputStream.ofBytes(message).use { it.readVarInt() }
-        Logger.debug("Received hello from ${player.name} using sync protocol version $version")
+        // This is the hello packet's own protocol (currently always 1 in the
+        // 5.0.0 mod), not the gender payload format. V5 is inferred below from
+        // wildfire_gender:send_gender_info.
+        Logger.debug("Received hello from ${player.name} using handshake version $version")
 
         val reply = ByteArrayOutputStream().use { payload ->
             CraftOutputStream(payload).use { it.writeVarInt(ModConstants.HELLO_VERSION) }
             payload.toByteArray()
         }
-        player.sendPluginMessage(plugin, ModConstants.HELLO_CLIENTBOUND, reply)
+        player.scheduler.run(plugin, {
+            player.sendPluginMessage(plugin, ModConstants.HELLO_CLIENTBOUND, reply)
+            plugin.networkManager.markReady(player)
+        }, null)
     }
 }

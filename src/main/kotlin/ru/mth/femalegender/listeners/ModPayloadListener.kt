@@ -19,6 +19,8 @@ class ModPayloadListener(private val plugin: Main) : PluginMessageListener {
 
         plugin.userManager.users[user.userId] = user
         Logger.debug("Stored ${player.name} as ${user.configuration.generalOptions.genderIdentity.name}")
-        plugin.networkManager.sync(plugin.server.onlinePlayers)
+        // A client which already sent its payload is definitely able to receive
+        // a reply, even if it is a legacy build without the hello handshake.
+        plugin.networkManager.markReady(player)
     }
 }

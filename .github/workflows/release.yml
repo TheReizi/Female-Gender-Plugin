@@ -1,0 +1,61 @@
+name: Build and publish
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+      - name: Build plugin
+        env:
+          RELEASE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || '0.0.0-dev' }}
+        run: ./gradlew --no-daemon clean shadowJar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FemaleGenderPlugin
+          path: build/libs/FemaleGenderPlugin.jar
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    needs: build
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: FemaleGenderPlugin
+          path: release
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: release/FemaleGenderPlugin.jar
+      - name: Publish to Modrinth
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ${{ secrets.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          files: release/FemaleGenderPlugin.jar
+          name: FemaleGenderPlugin ${{ github.ref_name }}
+          version: ${{ github.ref_name }}
+          version-type: release
+          loaders: paper folia purpur
+          game-versions: '1.21.11'
+

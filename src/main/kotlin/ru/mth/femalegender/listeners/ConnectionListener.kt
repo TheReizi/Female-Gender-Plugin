@@ -13,8 +13,7 @@ class ConnectionListener(private val plugin: Main) : Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     private fun onPlayerJoin(event: PlayerJoinEvent) {
         val player = event.player
-        Logger.info("Syncing ${player.name}")
-        plugin.networkManager.sync(plugin.server.onlinePlayers)
+        Logger.info("Waiting for ${player.name}'s FemaleGender hello before syncing")
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -22,5 +21,6 @@ class ConnectionListener(private val plugin: Main) : Listener {
         val player = event.player
         Logger.debug("Removing ${player.name}")
         plugin.userManager.users.remove(player.uniqueId)
+        plugin.networkManager.forget(player.uniqueId)
     }
 }

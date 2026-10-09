@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "ru.mth"
-version = ""
+version = providers.environmentVariable("RELEASE_VERSION").orElse("0.0.0-dev").get()
 
 repositories {
     mavenCentral()
@@ -48,7 +48,7 @@ tasks.processResources {
     val props = mapOf("version" to version)
     inputs.properties(props)
     filteringCharset = "UTF-8"
-    filesMatching("plugin.yml") {
+    filesMatching("paper-plugin.yml") {
         expand(props)
     }
 }

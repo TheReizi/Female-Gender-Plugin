@@ -43,23 +43,29 @@ object ModSyncPacketV5 : ModSyncPacket {
         writeVarInt(quad.y2)
     }
 
-    private fun CraftInputStream.readUVLayout(): UVLayout =
-        UVLayout(readMap(MAX_UV_QUADS, keyReader = { readEnum<UVDirection>() }, valueReader = { readUVQuad() }))
+    // fallback дополняет любые отсутствующие направления дефолтными квадами мода — карта на
+    // проводе никогда не должна быть неполной, иначе клиент 5.0.0+ падает с NPE (см. UVLayouts.DEFAULT).
+    private fun CraftInputStream.readUVLayout(fallback: UVLayout): UVLayout {
+        val quads = readMap(MAX_UV_QUADS, keyReader = { readEnum<UVDirection>() }, valueReader = { readUVQuad() })
+        return UVLayout(fallback.quads + quads)
+    }
 
-    private fun CraftOutputStream.writeUVLayout(layout: UVLayout) {
-        writeMap(layout.quads, keyWriter = { writeEnum(it) }, valueWriter = { writeUVQuad(it) })
+    private fun CraftOutputStream.writeUVLayout(layout: UVLayout, fallback: UVLayout) {
+        writeMap(fallback.quads + layout.quads, keyWriter = { writeEnum(it) }, valueWriter = { writeUVQuad(it) })
     }
 
     private fun CraftInputStream.readUVLayouts(): UVLayouts {
-        val skin = UVLayouts.Layer(readUVLayout(), readUVLayout())
-        val overlay = UVLayouts.Layer(readUVLayout(), readUVLayout())
+        val default = UVLayouts.DEFAULT
+        val skin = UVLayouts.Layer(readUVLayout(default.skin.left), readUVLayout(default.skin.right))
+        val overlay = UVLayouts.Layer(readUVLayout(default.overlay.left), readUVLayout(default.overlay.right))
         return UVLayouts(skin, overlay)
     }
 
     private fun CraftOutputStream.writeUVLayouts(layouts: UVLayouts) {
-        writeUVLayout(layouts.skin.left)
-        writeUVLayout(layouts.skin.right)
-        writeUVLayout(layouts.overlay.left)
-        writeUVLayout(layouts.overlay.right)
+        val default = UVLayouts.DEFAULT
+        writeUVLayout(layouts.skin.left, default.skin.left)
+        writeUVLayout(layouts.skin.right, default.skin.right)
+        writeUVLayout(layouts.overlay.left, default.overlay.left)
+        writeUVLayout(layouts.overlay.right, default.overlay.right)
     }
 }

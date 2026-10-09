@@ -9,5 +9,5 @@ data class BreastOptions(
     val zOffset: Float,
     val uniBoob: Boolean,
     val cleavage: Float,
-    val uvLayouts: UVLayouts = UVLayouts.EMPTY
+    val uvLayouts: UVLayouts = UVLayouts.DEFAULT
 )

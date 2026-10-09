@@ -1,5 +1,13 @@
 mod:
-  # The packet format used for mod data reads/writes
+  # If enabled (default), each player's packet format is auto-detected from their own
+  # client, so mixed mod versions on the same server sync correctly with each other.
+  # If you run into sync issues and suspect the auto-detection, disable this to force
+  # everyone onto the single protocol below instead.
+  auto-detect: true
+
+  # With auto-detect on, this is only the fallback format used for a recipient we haven't
+  # detected yet (e.g. hasn't sent their own data since joining).
+  # With auto-detect off, this is the ONLY protocol used, for everyone.
   # -1 will use the newest known protocol, so that you won't need to change this every mod and plugin update.
   # Undocumented protocols will cause this plugin to disable itself on launch.
   # This file is watched for changes and reloaded automatically — no server restart needed.
